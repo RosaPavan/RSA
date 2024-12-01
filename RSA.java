@@ -2,51 +2,43 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
-
-
 public class RSA {
-        Scanner inp = new Scanner(System.in);
-        String parola = inp.nextLine();
-    public static void main(String[] args){
+    public static void main(String[] args) {
         encryption();
     }
-    private static void encryption(){	
-		Random rnd = new Random();
-		BigInteger p = BigInteger.probablePrime(Long.BYTES, rnd);
-        BigInteger q = BigInteger.probablePrime(Long.BYTES, rnd);
+    private static void encryption() {
+        System.out.println("Inserisci una parola o una frase:");
+        Scanner inp = new Scanner(System.in);
+        String parola = inp.nextLine();
+        Random rnd = new Random();
+        BigInteger p = BigInteger.probablePrime(512, rnd);
+        BigInteger q = BigInteger.probablePrime(512, rnd);
         if (p.gcd(q) != BigInteger.ONE) {
-            p = BigInteger.probablePrime(Long.BYTES, rnd);
-            q = BigInteger.probablePrime(Long.BYTES, rnd);
+            p = BigInteger.probablePrime(512, rnd);
+            q = BigInteger.probablePrime(512, rnd);
         }
         BigInteger fEulero = p.subtract(BigInteger.ONE).multiply((q.subtract(BigInteger.ONE)));
         BigInteger e = generateE(fEulero, rnd);
         BigInteger n = p.multiply(q);
         BigInteger d;
-        BigInteger i = BigInteger.ZERO;
-        while(true){
-            BigInteger a = BigInteger.ONE.add(fEulero.multiply(i));
-            if (a.mod(e) == BigInteger.ZERO) {
-                d = a.divide(e);
-                break;
-            }
-            i.add(BigInteger.ONE);
-        }
-        String parola = "ciao";
+        d = e.modInverse(fEulero);
         ArrayList<Integer> converted = convert(parola);
-        System.out.println("Messaggio convertito: " + converted);    
+        System.out.println("Messaggio convertito: " + converted);
         ArrayList<BigInteger> encrypted = encrypt(converted, e, n);
         System.out.println("Messaggio cifrato: " + encrypted);
         ArrayList<Character> decrypted = decrypt(encrypted, d, n);
         System.out.println("Messaggio decifrato: " + decrypted);
+        inp.close();
     }
     private static BigInteger generateE(BigInteger fEulero, Random rnd) {
         BigInteger e;
         do {
             e = new BigInteger(512, rnd);
-        } while (e.compareTo(BigInteger.ONE) <= 0 || e.compareTo(fEulero) >= 0 || !e.gcd(fEulero).equals(BigInteger.ONE));
+        } while (e.compareTo(BigInteger.ONE) <= 0 || e.compareTo(fEulero) >= 0
+                || !e.gcd(fEulero).equals(BigInteger.ONE));
         return e;
     }
-    public static ArrayList<Integer> convert(String parola){
+    public static ArrayList<Integer> convert(String parola) {
         ArrayList<Integer> converted = new ArrayList<Integer>();
         for (int i = 0; i < parola.length(); i++) {
             char lettera = parola.charAt(i);
